@@ -1,0 +1,12 @@
+{
+  "name": "ci_cd_project",
+  "version": "1.0.0",
+  "description": "CI/CD demo project",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "jest",
+    "build": "echo Build step"
+  },
+  "author": "",
+  "license": "ISC"
+}
