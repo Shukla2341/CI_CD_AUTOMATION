@@ -1,65 +1,58 @@
 name: CI/CD Pipeline
 
-# 🔔 Trigger events
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
-# 🏗️ Jobs
 jobs:
 
-  # ----------------------
-  # CI JOB (Build + Test)
-  # ----------------------
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Get code
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # Step 2: Setup Node
-    - name: Setup Node.js
+    - name: Setup Node
       uses: actions/setup-node@v3
       with:
         node-version: '18'
 
-    # Step 3: Install dependencies
     - name: Install Dependencies
       run: npm install
 
-    # Step 4: Run Tests
     - name: Run Tests
       run: npm test
 
-    # Step 5: Build Project
-    - name: Build App
+    - name: Build
       run: npm run build
 
 
-  # ----------------------
-  # CD JOB (Deploy)
-  # ----------------------
   deploy:
-    needs: build   # 👈 runs only if build succeeds
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
-
-    # Example: Deploy to server via SSH
-    - name: Deploy to Server
+    - name: Deploy to AWS EC2
       uses: appleboy/ssh-action@v0.1.6
       with:
         host: ${{ secrets.SERVER_IP }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          cd /var/www/app
+          if [ ! -d "CI_CD_AUTOMATION" ]; then
+            git clone https://github.com/Shukla2341/CI_CD_AUTOMATION.git
+          fi
+          cd CI_CD_AUTOMATION
           git pull origin main
           npm install
-          pm2 restart app
+
+          # Restart or start app
+          pm2 describe app > /dev/null
+          if [ $? -eq 0 ]; then
+            pm2 restart app
+          else
+            pm2 start src/app.js --name app
+          fi
+
+          pm2 save
