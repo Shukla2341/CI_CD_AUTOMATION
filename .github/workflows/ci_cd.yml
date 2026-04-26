@@ -40,20 +40,18 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
 
-          script: |
-            if [ ! -d "CI_CD_AUTOMATION" ]; then
-              git clone https://github.com/Shukla2341/CI_CD_AUTOMATION.git
-            fi
+            script: |
+    if [ ! -d "CI_CD_AUTOMATION" ]; then
+      git clone https://github.com/Shukla2341/CI_CD_AUTOMATION.git
+    fi
 
-            cd CI_CD_AUTOMATION
-            git pull origin main
+    cd CI_CD_AUTOMATION
 
-            npm install
+    git fetch origin
+    git reset --hard origin/main
+    git clean -fd
 
-            # Install PM2 if not exists
-            sudo npm install -g pm2
+    npm install
 
-            # Restart or start app
-            pm2 restart my-app || pm2 start server.js --name my-app
-
-            pm2 save
+    pm2 restart my-app || pm2 start server.js --name my-app
+    pm2 save
