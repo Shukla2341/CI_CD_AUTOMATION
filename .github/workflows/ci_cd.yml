@@ -10,49 +10,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Install Dependencies
-      run: npm install
+      - name: Install Dependencies
+        run: npm install
 
-    - name: Run Tests
-      run: npm test
+      - name: Run Tests
+        run: npm test
 
-    - name: Build
-      run: npm run build
-
+      - name: Build
+        run: npm run build
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Deploy to AWS EC2
-      uses: appleboy/ssh-action@v0.1.6
-      with:
-        host: ${{ secrets.SERVER_IP }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        script: |
-          if [ ! -d "CI_CD_AUTOMATION" ]; then
-            git clone https://github.com/Shukla2341/CI_CD_AUTOMATION.git
-          fi
-          cd CI_CD_AUTOMATION
-          git pull origin main
-          npm install
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v0.1.6
 
-          # Restart or start app
-          pm2 describe app > /dev/null
-          if [ $? -eq 0 ]; then
-            pm2 restart app
-          else
-            pm2 start src/app.js --name app
-          fi
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
 
-          pm2 save
+          script: |
+            if [ ! -d "CI_CD_AUTOMATION" ]; then
+              git clone https://github.com/Shukla2341/CI_CD_AUTOMATION.git
+            fi
+
+            cd CI_CD_AUTOMATION
+            git pull origin main
+
+            npm install
+
+            # Install PM2 if not exists
+            sudo npm install -g pm2
+
+            # Restart or start app
+            pm2 restart my-app || pm2 start server.js --name my-app
+
+            pm2 save
