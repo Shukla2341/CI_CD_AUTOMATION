@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
 
@@ -34,24 +34,22 @@ jobs:
     steps:
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v0.1.6
-
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            if [ ! -d "CI_CD_AUTOMATION" ]; then
+              git clone https://github.com/Shukla2341/CI_CD_AUTOMATION.git
+            fi
 
-            script: |
-    if [ ! -d "CI_CD_AUTOMATION" ]; then
-      git clone https://github.com/Shukla2341/CI_CD_AUTOMATION.git
-    fi
+            cd CI_CD_AUTOMATION
 
-    cd CI_CD_AUTOMATION
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
 
-    git fetch origin
-    git reset --hard origin/main
-    git clean -fd
+            npm install
 
-    npm install
-
-    pm2 restart my-app || pm2 start server.js --name my-app
-    pm2 save
+            pm2 restart my-app || pm2 start server.js --name my-app
+            pm2 save
