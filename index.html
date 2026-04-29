@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CI/CD Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav>
+    <h2>⚡ DevOps Dashboard</h2>
+  </nav>
+
+  <div class="main">
+
+    <div class="card">
+      <h3>🚀 Deployment Status</h3>
+      <p id="status">Checking...</p>
+      <button onclick="checkStatus()">Check Status</button>
+    </div>
+
+    <div class="card">
+      <h3>📡 Server Info</h3>
+      <p id="server">Click to fetch server data</p>
+      <button onclick="getServer()">Get Info</button>
+    </div>
+
+    <div class="card">
+      <h3>⏱ Build Time</h3>
+      <p id="time">--</p>
+      <button onclick="showTime()">Show Time</button>
+    </div>
+
+  </div>
+
+  <script>
+    function checkStatus() {
+      document.getElementById("status").innerText = "✅ Running Successfully!";
+    }
+
+    function getServer() {
+      document.getElementById("server").innerText = "🌍 Server is live on AWS EC2";
+    }
+
+    function showTime() {
+      document.getElementById("time").innerText = new Date().toLocaleString();
+    }
+  </script>
+
+</body>
+</html>
